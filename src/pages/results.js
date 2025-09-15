@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import Header from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { EyeIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
 const results = () => {
+  const router = useRouter();
+  
   const papers = [
     { 
       title: "Data Structures", 
@@ -63,6 +66,23 @@ const results = () => {
       description: "Software development lifecycle and design patterns"
     }
   ];
+
+  const handlePreview = (paper, index) => {
+    // Navigate to paper preview page with paper data
+    router.push({
+      pathname: '/paper-viewer',
+      query: {
+        id: index,
+        title: paper.title,
+        department: paper.department,
+        year: paper.year,
+        semester: paper.semester,
+        description: paper.description,
+        tags: paper.tags.join(','),
+        downloads: paper.downloads
+      }
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -226,6 +246,7 @@ const results = () => {
                         variant="outline" 
                         size="sm" 
                         className="flex-1 h-9 text-xs hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-all duration-200"
+                        onClick={() => handlePreview(paper, index)}
                       >
                         <EyeIcon className="h-3.5 w-3.5 mr-1.5" />
                         Preview

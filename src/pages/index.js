@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import Header from '@/components/Header';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 
 const Home = () => {
+  const router = useRouter();
+  
   const popularPapers = [
     { 
       title: "Data Structures", 
@@ -51,6 +54,21 @@ const Home = () => {
       description: "Software development lifecycle and design patterns"
     }
   ];
+
+  const handlePreview = (paper, index) => {
+    // Navigate to paper preview page with paper data
+    router.push({
+      pathname: '/paper-viewer',
+      query: {
+        id: index,
+        title: paper.title,
+        year: paper.year,
+        description: paper.description,
+        tags: paper.tags.join(','),
+        downloads: paper.downloads
+      }
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -161,7 +179,11 @@ const Home = () => {
                       {paper.downloads} downloads
                     </span>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handlePreview(paper, index)}
+                      >
                         View
                       </Button>
                       <Button size="sm">
