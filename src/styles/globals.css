@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-base-background text-base-text;
+}
+
+.dark body {
+  @apply bg-dark-base-background text-dark-base-text;
+}
