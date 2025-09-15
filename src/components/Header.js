@@ -124,11 +124,18 @@ const Header = () => {
         <div className="p-4">
           <nav className="flex flex-col space-y-3">
             <Link 
-              href="/results" 
+              href="/" 
               className="text-sm font-medium text-foreground hover:text-primary transition-colors px-2 py-2 rounded-md hover:bg-muted/50"
               onClick={() => setMobileMenuOpen(false)}
             >
               Home
+            </Link>
+            <Link 
+              href="/results" 
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors px-2 py-2 rounded-md hover:bg-muted/50"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Papers
             </Link>
             <Link 
               href="/upload" 
