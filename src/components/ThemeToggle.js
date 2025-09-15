@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { SunIcon, MoonIcon } from '@heroicons/react/24/solid';
+import { Button } from "@/components/ui/button";
 
 const ThemeToggle = () => {
   const [theme, setTheme] = useState('light');
@@ -17,13 +18,19 @@ const ThemeToggle = () => {
   };
 
   return (
-    <button onClick={toggleTheme} className="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
+    <Button 
+      variant="ghost" 
+      size="sm" 
+      onClick={toggleTheme}
+      className="h-9 w-9 p-0"
+    >
       {theme === 'light' ? (
-        <MoonIcon className="h-6 w-6 text-primary" />
+        <MoonIcon className="h-4 w-4" />
       ) : (
-        <SunIcon className="h-6 w-6 text-yellow-400" />
+        <SunIcon className="h-4 w-4" />
       )}
-    </button>
+      <span className="sr-only">Toggle theme</span>
+    </Button>
   );
 };
 
