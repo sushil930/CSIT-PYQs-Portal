@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { SunIcon, MoonIcon } from '@heroicons/react/solid';
+import { SunIcon, MoonIcon } from '@heroicons/react/24/solid';
 
 const ThemeToggle = () => {
   const [theme, setTheme] = useState('light');

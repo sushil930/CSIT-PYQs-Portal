@@ -17,5 +17,8 @@
     "react-dom": "^19.1.1",
     "react-pdf": "^10.1.0",
     "tailwindcss": "^4.1.13"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.13"
   }
 }

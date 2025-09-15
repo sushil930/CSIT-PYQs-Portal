@@ -1,1 +1,56 @@
-node_modules
+## Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+## Build output
+.next/
+out/
+dist/
+build/
+
+## Next.js caches
+.next/cache/
+
+## Turbo / SWC / Misc caches
+.turbo/
+.swc/
+
+## Test coverage
+coverage/
+
+## Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+## Env files (keep local only)
+.env
+.env*.local
+
+## Vercel / Deploy
+.vercel/
+
+## OS files
+.DS_Store
+Thumbs.db
+
+## IDE/editor
+.idea/
+.vs/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+## TypeScript build info
+*.tsbuildinfo
+
+## Misc
+.eslintcache
+*.local

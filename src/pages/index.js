@@ -1,5 +1,5 @@
 import Header from '@/components/Header';
-import { SearchIcon } from '@heroicons/react/solid';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 
 const Home = () => {
   return (
@@ -20,7 +20,7 @@ const Home = () => {
               className="w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-full focus:outline-none focus:border-primary transition-colors"
             />
             <button className="absolute right-0 top-0 mt-3 mr-4">
-              <SearchIcon className="h-8 w-8 text-gray-400 hover:text-primary" />
+              <MagnifyingGlassIcon className="h-8 w-8 text-gray-400 hover:text-primary" />
             </button>
           </div>
         </div>

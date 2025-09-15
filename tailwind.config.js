@@ -14,11 +14,6 @@ module.exports = {
         accent: '#F59E0B',
         'base-background': '#F9FAFB',
         'base-text': '#111827',
-        dark: {
-          'base-background': '#111827',
-          'base-text': '#F9FAFB',
-          primary: '#3B82F6',
-        }
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
