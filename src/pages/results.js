@@ -142,55 +142,110 @@ const results = () => {
 
           {/* Results Grid */}
           <main className="flex-1">
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold mb-2">Question Papers</h1>
-              <p className="text-muted-foreground">
-                Found {papers.length} papers matching your criteria
-              </p>
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                    Question Papers
+                  </h1>
+                  <p className="text-muted-foreground">
+                    Found <span className="font-semibold text-foreground">{papers.length} papers</span> matching your criteria
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Select defaultValue="newest">
+                    <SelectTrigger className="w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="newest">Newest First</SelectItem>
+                      <SelectItem value="oldest">Oldest First</SelectItem>
+                      <SelectItem value="popular">Most Popular</SelectItem>
+                      <SelectItem value="downloads">Most Downloaded</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {papers.map((paper, index) => (
-                <Card key={index} className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                  <CardHeader className="pb-3">
-                    <div className="flex justify-between items-start mb-2">
-                      <CardTitle className="text-lg group-hover:text-primary transition-colors leading-tight">
-                        {paper.title}
-                      </CardTitle>
-                      <Badge variant="secondary">{paper.year}</Badge>
+                <Card key={index} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-0 bg-card/80 backdrop-blur overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  
+                  <CardHeader className="pb-4 relative z-10">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                          <span className="text-xs font-bold text-primary">{paper.department}</span>
+                        </div>
+                        <Badge variant="secondary" className="text-xs px-2 py-1">
+                          {paper.year}
+                        </Badge>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-muted-foreground">{paper.semester} Semester</div>
+                      </div>
                     </div>
-                    <div className="flex gap-2 text-xs text-muted-foreground mb-2">
-                      <span>{paper.department}</span>
-                      <span>•</span>
-                      <span>{paper.semester} Sem</span>
-                    </div>
-                    <CardDescription className="text-sm line-clamp-2">
+                    
+                    <CardTitle className="text-lg group-hover:text-primary transition-colors leading-tight mb-2">
+                      {paper.title}
+                    </CardTitle>
+                    
+                    <CardDescription className="text-sm line-clamp-2 mb-3">
                       {paper.description}
                     </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-1 mb-4">
+
+                    <div className="flex flex-wrap gap-1.5 mb-3">
                       {paper.tags.map((tag, tagIndex) => (
-                        <Badge key={tagIndex} variant="outline" className="text-xs">
+                        <Badge 
+                          key={tagIndex} 
+                          variant="outline" 
+                          className="text-xs px-2 py-0.5 hover:bg-primary/10 hover:border-primary/30 transition-colors cursor-pointer"
+                        >
                           {tag}
                         </Badge>
                       ))}
                     </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        {paper.downloads} downloads
-                      </span>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="h-8 px-3">
-                          <EyeIcon className="h-3 w-3 mr-1" />
-                          View
-                        </Button>
-                        <Button size="sm" className="h-8 px-3">
-                          <ArrowDownTrayIcon className="h-3 w-3 mr-1" />
-                          Download
-                        </Button>
+                  </CardHeader>
+                  
+                  <CardContent className="pt-0 relative z-10">
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span>{paper.downloads} downloads</span>
                       </div>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <span>★★★★☆</span>
+                        <span>(4.2)</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1 h-9 text-xs hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-all duration-200"
+                      >
+                        <EyeIcon className="h-3.5 w-3.5 mr-1.5" />
+                        Preview
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        className="flex-1 h-9 text-xs bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transition-all duration-200"
+                      >
+                        <ArrowDownTrayIcon className="h-3.5 w-3.5 mr-1.5" />
+                        Download
+                      </Button>
+                    </div>
+
+                    {/* Additional metadata */}
+                    <div className="mt-3 pt-3 border-t border-border/50 flex justify-between items-center text-xs text-muted-foreground">
+                      <span>Added 2 days ago</span>
+                      <span className="flex items-center gap-1">
+                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                        Verified
+                      </span>
                     </div>
                   </CardContent>
                 </Card>
