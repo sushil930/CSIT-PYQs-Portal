@@ -10,7 +10,10 @@
     "static/development/_buildManifest.js",
     "static/development/_ssgManifest.js"
   ],
-  "rootMainFiles": [],
+  "rootMainFiles": [
+    "static/chunks/webpack.js",
+    "static/chunks/main-app.js"
+  ],
   "rootMainFilesTree": {},
   "pages": {
     "/": [
@@ -33,20 +36,15 @@
       "static/chunks/main.js",
       "static/chunks/pages/admin.js"
     ],
-    "/paper-viewer": [
+    "/admin/login": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/paper-viewer.js"
+      "static/chunks/pages/admin/login.js"
     ],
     "/results": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/results.js"
-    ],
-    "/upload": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/upload.js"
     ]
   },
   "ampFirstPages": []

@@ -2,9 +2,8 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/paper-viewer": "pages/paper-viewer.js",
-  "/results": "pages/results.js",
-  "/upload": "pages/upload.js",
   "/": "pages/index.js",
-  "/admin": "pages/admin.js"
+  "/admin": "pages/admin.js",
+  "/admin/login": "pages/admin/login.js",
+  "/results": "pages/results.js"
 }

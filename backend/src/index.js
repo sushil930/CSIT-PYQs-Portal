@@ -7,6 +7,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
 import papersRouter from './routes/papers.js';
+import adminRouter from './routes/admin.js';
 
 // Load env from backend/.env explicitly so it works no matter where you launch from
 const __filename = fileURLToPath(import.meta.url);
@@ -41,6 +42,7 @@ if (mongoUri) {
 }
 
 app.use('/api/papers', papersRouter);
+app.use('/api/admin', adminRouter);
 
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
