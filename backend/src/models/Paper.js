@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 const PaperSchema = new mongoose.Schema(
   {
     subject: { type: String, required: true, index: true },
-    semester: { type: String, required: true, index: true },
+    department: { type: String, index: true },
+    semester: { type: String, index: true, default: '' },
     year: { type: Number, required: true, index: true },
     tags: { type: [String], default: [], index: true },
     fileUrl: { type: String, required: true },

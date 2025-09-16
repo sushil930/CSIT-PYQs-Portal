@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,65 +10,56 @@ import { Badge } from "@/components/ui/badge";
 
 const Home = () => {
   const router = useRouter();
+  const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
   
-  const popularPapers = [
-    { 
-      title: "Data Structures", 
-      year: "2022", 
-      downloads: "1.2k", 
-      tags: ["Important", "Arrays"],
-      description: "Comprehensive coverage of arrays, linked lists, and trees"
-    },
-    { 
-      title: "Algorithms", 
-      year: "2021", 
-      downloads: "890", 
-      tags: ["Core", "Problem Solving"],
-      description: "Dynamic programming, sorting, and graph algorithms"
-    },
-    { 
-      title: "Database Management", 
-      year: "2022", 
-      downloads: "756", 
-      tags: ["SQL", "Design"],
-      description: "DBMS concepts, normalization, and query optimization"
-    },
-    { 
-      title: "Computer Networks", 
-      year: "2023", 
-      downloads: "643", 
-      tags: ["Protocols", "Security"],
-      description: "TCP/IP, OSI model, and network security fundamentals"
-    },
-    { 
-      title: "Operating Systems", 
-      year: "2022", 
-      downloads: "587", 
-      tags: ["Process", "Memory"],
-      description: "Process management, memory allocation, and file systems"
-    },
-    { 
-      title: "Software Engineering", 
-      year: "2023", 
-      downloads: "432", 
-      tags: ["SDLC", "Design"],
-      description: "Software development lifecycle and design patterns"
-    }
-  ];
+  const [popularPapers, setPopularPapers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const handlePreview = (paper, index) => {
-    // Navigate to paper preview page with paper data
+  useEffect(() => {
+    const controller = new AbortController();
+    async function load() {
+      try {
+        setLoading(true);
+        setError('');
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000'}/api/papers?status=ready&sort=downloads&limit=6`, { signal: controller.signal });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        setPopularPapers(data.data || []);
+      } catch (e) {
+        if (e.name !== 'AbortError') setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+    return () => controller.abort();
+  }, []);
+
+  const handlePreview = (paper) => {
+    // Navigate to paper preview page with paper data (include fileUrl)
     router.push({
       pathname: '/paper-viewer',
       query: {
-        id: index,
-        title: paper.title,
-        year: paper.year,
-        description: paper.description,
-        tags: paper.tags.join(','),
-        downloads: paper.downloads
+        title: paper.subject || paper.title || '',
+        department: paper.department || '',
+        year: paper.year || '',
+        semester: paper.semester || '',
+        description: paper.description || '',
+        tags: (paper.tags || []).join(','),
+        downloads: paper.downloads || '',
+        file: paper.fileUrl || ''
       }
     });
+  };
+
+  const handleDownload = (paper) => {
+    const raw = paper.fileUrl || '';
+    if (!raw) return;
+    const url = raw.startsWith('http://') || raw.startsWith('https://')
+      ? raw
+      : `${apiBase}${raw.startsWith('/') ? '' : '/'}${raw}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -152,22 +144,48 @@ const Home = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {loading && (
+              <Card className="col-span-1 md:col-span-2 lg:col-span-3">
+                <CardHeader>
+                  <CardTitle>Loading...</CardTitle>
+                  <CardDescription>Fetching trending papers</CardDescription>
+                </CardHeader>
+              </Card>
+            )}
+            {!loading && error && (
+              <Card className="col-span-1 md:col-span-2 lg:col-span-3">
+                <CardHeader>
+                  <CardTitle>Failed to load</CardTitle>
+                  <CardDescription className="text-destructive">{error}</CardDescription>
+                </CardHeader>
+              </Card>
+            )}
+            {!loading && !error && popularPapers.length === 0 && (
+              <Card className="col-span-1 md:col-span-2 lg:col-span-3">
+                <CardHeader>
+                  <CardTitle>No papers yet</CardTitle>
+                  <CardDescription>
+                    Once uploads are approved, trending papers will appear here.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            )}
             {popularPapers.map((paper, index) => (
               <Card key={index} className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start mb-2">
                     <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                      {paper.title}
+                      {paper.subject}
                     </CardTitle>
                     <Badge variant="secondary">{paper.year}</Badge>
                   </div>
                   <CardDescription className="text-sm">
-                    {paper.description}
+                    {paper.description || '—'}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-1 mb-4">
-                    {paper.tags.map((tag, tagIndex) => (
+                    {(paper.tags || []).map((tag, tagIndex) => (
                       <Badge key={tagIndex} variant="outline" className="text-xs">
                         {tag}
                       </Badge>
@@ -182,11 +200,11 @@ const Home = () => {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => handlePreview(paper, index)}
+                        onClick={() => handlePreview(paper)}
                       >
                         View
                       </Button>
-                      <Button size="sm">
+                      <Button size="sm" onClick={() => handleDownload(paper)}>
                         Download
                       </Button>
                     </div>

@@ -31,18 +31,48 @@ const Upload = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!formData.file) return;
     setIsUploading(true);
-    // Simulate upload progress
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 10;
-      setUploadProgress(progress);
-      if (progress >= 100) {
-        clearInterval(interval);
-        setIsUploading(false);
-        setUploadProgress(0);
+    setUploadProgress(0);
+
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
+    const fd = new FormData();
+    fd.append('file', formData.file);
+    fd.append('subject', formData.subject);
+    fd.append('department', formData.department);
+    fd.append('year', formData.year);
+    fd.append('semester', formData.semester || '');
+    fd.append('tags', formData.tags);
+    fd.append('uploader', 'web');
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `${apiBase}/api/papers/upload`);
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percent = Math.round((event.loaded / event.total) * 100);
+        setUploadProgress(percent);
       }
-    }, 200);
+    };
+    xhr.onload = () => {
+      setIsUploading(false);
+      try {
+        const res = JSON.parse(xhr.responseText);
+        if (xhr.status >= 200 && xhr.status < 300 && res.success) {
+          alert('Upload successful');
+          setFormData({ department: '', subject: '', year: '', examType: '', tags: '', file: null });
+          setUploadProgress(0);
+        } else {
+          alert(res.error || 'Upload failed');
+        }
+      } catch (err) {
+        alert('Upload failed');
+      }
+    };
+    xhr.onerror = () => {
+      setIsUploading(false);
+      alert('Network error during upload');
+    };
+    xhr.send(fd);
   };
 
   return (
@@ -67,10 +97,10 @@ const Upload = () => {
                 <CheckCircleIcon className="h-4 w-4 text-green-500" />
                 <span>PDF Only</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircleIcon className="h-4 w-4 text-green-500" />
-                <span>Max 10MB</span>
-              </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircleIcon className="h-4 w-4 text-green-500" />
+                  <span>Max 20MB</span>
+                </div>
               <div className="flex items-center gap-2">
                 <CheckCircleIcon className="h-4 w-4 text-green-500" />
                 <span>Manual Review</span>
@@ -141,7 +171,7 @@ const Upload = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Exam Type *</label>
+                        <label className="text-sm font-medium">Exam Type</label>
                       <Select value={formData.examType} onValueChange={(value) => setFormData({...formData, examType: value})}>
                         <SelectTrigger className="h-11">
                           <SelectValue placeholder="Select exam type" />
@@ -186,7 +216,7 @@ const Upload = () => {
                             </div>
                             <div>
                               <p className="text-sm font-medium">Click to upload or drag and drop</p>
-                              <p className="text-xs text-muted-foreground">PDF files only, max 10MB</p>
+                              <p className="text-xs text-muted-foreground">PDF files only, max 20MB</p>
                             </div>
                             {formData.file && (
                               <div className="flex items-center gap-2 mt-2 px-3 py-1 bg-green-50 rounded-full">
@@ -215,13 +245,18 @@ const Upload = () => {
                       </div>
                     )}
 
-                    <Button 
-                      type="submit" 
-                      className="w-full h-12 text-base font-semibold"
-                      disabled={isUploading || !formData.file || !formData.subject || !formData.department}
-                    >
-                      {isUploading ? 'Uploading...' : 'Submit for Review'}
-                    </Button>
+                    <div className="flex items-center gap-3">
+                      <Button 
+                        type="submit" 
+                        className="h-12 text-base font-semibold"
+                        disabled={isUploading || !formData.file || !formData.subject || !formData.department || !formData.year}
+                      >
+                        {isUploading ? 'Uploading...' : 'Submit for Review'}
+                      </Button>
+                      {isUploading && (
+                        <span className="text-sm text-muted-foreground">{uploadProgress}%</span>
+                      )}
+                    </div>
                   </form>
                 </CardContent>
               </Card>
@@ -244,7 +279,7 @@ const Upload = () => {
                     </div>
                     <div className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                      <p>File size should not exceed 10MB</p>
+                      <p>File size should not exceed 20MB</p>
                     </div>
                     <div className="flex items-start gap-3">
                       <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
@@ -262,22 +297,8 @@ const Upload = () => {
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg">Recent Uploads</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {[
-                    { subject: "Data Structures", dept: "CSIT", status: "approved" },
-                    { subject: "Digital Logic", dept: "ECE", status: "pending" },
-                    { subject: "Thermodynamics", dept: "ME", status: "approved" }
-                  ].map((item, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                      <div>
-                        <p className="text-sm font-medium">{item.subject}</p>
-                        <p className="text-xs text-muted-foreground">{item.dept}</p>
-                      </div>
-                      <Badge variant={item.status === 'approved' ? 'default' : 'secondary'}>
-                        {item.status}
-                      </Badge>
-                    </div>
-                  ))}
+                <CardContent className="space-y-3 text-sm text-muted-foreground">
+                  No recent uploads to show.
                 </CardContent>
               </Card>
             </div>
