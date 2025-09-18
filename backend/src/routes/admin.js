@@ -119,6 +119,38 @@ router.get('/pending', verifyAdmin, async (req, res) => {
   }
 });
 
+// Get all papers for management
+router.get('/papers', verifyAdmin, async (req, res) => {
+  try {
+    const Paper = (await import('../models/Paper.js')).default;
+    const { status, page = 1, limit = 20 } = req.query;
+    
+    const query = status ? { status } : {};
+    const skip = (page - 1) * limit;
+    
+    const papers = await Paper.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+    
+    const total = await Paper.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: papers,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (err) {
+    console.error('All papers error:', err);
+    res.status(500).json({ success: false, error: 'Failed to fetch papers' });
+  }
+});
+
 // Approve/reject paper
 router.patch('/papers/:id/status', verifyAdmin, async (req, res) => {
   try {
@@ -147,6 +179,80 @@ router.patch('/papers/:id/status', verifyAdmin, async (req, res) => {
   } catch (err) {
     console.error('Update paper status error:', err);
     res.status(500).json({ success: false, error: 'Failed to update paper status' });
+  }
+});
+
+// Update paper details
+router.put('/papers/:id', verifyAdmin, async (req, res) => {
+  try {
+    const paperId = req.params.id;
+    const { subject, department, year, semester, fileName } = req.body;
+
+    if (!subject || !department || !year || !semester) {
+      return res.status(400).json({ success: false, error: 'Missing required fields' });
+    }
+
+    const Paper = (await import('../models/Paper.js')).default;
+    const paper = await Paper.findByIdAndUpdate(
+      paperId,
+      { 
+        subject: subject.trim(),
+        department: department.trim(),
+        year: parseInt(year),
+        semester: semester.trim(),
+        fileName: fileName?.trim(),
+        updatedAt: new Date()
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!paper) {
+      return res.status(404).json({ success: false, error: 'Paper not found' });
+    }
+
+    res.json({
+      success: true,
+      data: paper,
+      message: 'Paper updated successfully'
+    });
+  } catch (err) {
+    console.error('Update paper error:', err);
+    res.status(500).json({ success: false, error: 'Failed to update paper' });
+  }
+});
+
+// Delete paper permanently
+router.delete('/papers/:id', verifyAdmin, async (req, res) => {
+  try {
+    const paperId = req.params.id;
+    const Paper = (await import('../models/Paper.js')).default;
+    
+    const paper = await Paper.findById(paperId);
+    if (!paper) {
+      return res.status(404).json({ success: false, error: 'Paper not found' });
+    }
+
+    // Delete the paper from database
+    await Paper.findByIdAndDelete(paperId);
+
+    // Optional: Delete the physical file
+    // const fs = await import('fs/promises');
+    // const path = await import('path');
+    // if (paper.filePath) {
+    //   try {
+    //     await fs.unlink(paper.filePath);
+    //   } catch (fileErr) {
+    //     console.error('File deletion error:', fileErr);
+    //   }
+    // }
+
+    res.json({
+      success: true,
+      message: 'Paper deleted successfully'
+    });
+  } catch (err) {
+    console.error('Delete paper error:', err);
+    res.status(500).json({ success: false, error: 'Failed to delete paper' });
   }
 });
 

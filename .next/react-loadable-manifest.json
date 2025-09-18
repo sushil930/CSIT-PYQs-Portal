@@ -16,5 +16,11 @@
     "files": [
       "static/chunks/_pages-dir-browser_node_modules_next_dist_pages__error_js.js"
     ]
+  },
+  "pages\\paper-viewer.js -> react-pdf": {
+    "id": "pages\\paper-viewer.js -> react-pdf",
+    "files": [
+      "static/chunks/_pages-dir-browser_node_modules_react-pdf_dist_index_js.js"
+    ]
   }
 }

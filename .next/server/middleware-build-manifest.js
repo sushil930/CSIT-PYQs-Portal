@@ -33,10 +33,10 @@ globalThis.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/admin.js"
     ],
-    "/admin/login": [
+    "/paper-viewer": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/admin/login.js"
+      "static/chunks/pages/paper-viewer.js"
     ],
     "/results": [
       "static/chunks/webpack.js",
