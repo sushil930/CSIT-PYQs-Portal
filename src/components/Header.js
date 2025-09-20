@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import ThemeToggle from './ThemeToggle';
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,8 @@ const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [visible, setVisible] = useState(true);
+  const mobileMenuRef = useRef(null);
+  const mobileButtonRef = useRef(null);
 
   // Handle scroll effects
   useEffect(() => {
@@ -49,14 +51,37 @@ const Header = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (mobileMenuOpen && 
+          mobileMenuRef.current && 
+          !mobileMenuRef.current.contains(event.target) &&
+          mobileButtonRef.current &&
+          !mobileButtonRef.current.contains(event.target)) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    if (mobileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [mobileMenuOpen]);
+
   return (
     <header 
-      className={`border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300 ${
+      className={`relative border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300 ${
         scrolled ? 'shadow-md' : 'shadow-sm'
       } ${
         visible ? 'translate-y-0' : '-translate-y-full'
       }`}
-      style={{ height: 'var(--header-height)' }}
+      style={{ height: 'var(--header-height)', zIndex: 40 }}
     >
       <div className="container mx-auto px-4 h-full flex justify-between items-center">
         <div className="flex items-center space-x-8">
@@ -99,6 +124,7 @@ const Header = () => {
           </p>
           <ThemeToggle />
           <Button 
+            ref={mobileButtonRef}
             variant="ghost" 
             size="sm" 
             className="md:hidden h-9 w-9 p-0" 
@@ -116,42 +142,52 @@ const Header = () => {
 
       {/* Mobile Menu */}
       <div 
-        className={`md:hidden border-t border-border/40 bg-background mobile-menu-slide ${
+        ref={mobileMenuRef}
+        className={`md:hidden absolute left-0 right-0 top-full bg-background/98 backdrop-blur-md border-t border-border/40 shadow-lg mobile-menu-slide ${
           mobileMenuOpen ? 'open' : 'closed'
         }`}
-        style={{ display: mobileMenuOpen ? 'block' : 'none' }}
+        style={{ 
+          zIndex: 50,
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)'
+        }}
       >
-        <div className="p-4">
-          <nav className="flex flex-col space-y-3">
+        <div className="p-4 bg-background/95">
+          <nav className="flex flex-col space-y-1">
             <Link 
               href="/" 
-              className="text-sm font-medium text-foreground hover:text-primary transition-colors px-2 py-2 rounded-md hover:bg-muted/50"
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors px-3 py-3 rounded-lg hover:bg-muted/80 active:bg-muted border border-transparent hover:border-border/30"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Home
+              🏠 Home
             </Link>
             <Link 
               href="/results" 
-              className="text-sm font-medium text-foreground hover:text-primary transition-colors px-2 py-2 rounded-md hover:bg-muted/50"
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors px-3 py-3 rounded-lg hover:bg-muted/80 active:bg-muted border border-transparent hover:border-border/30"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Papers
+              📄 Browse Papers
             </Link>
             <Link 
               href="/upload" 
-              className="text-sm font-medium text-foreground hover:text-primary transition-colors px-2 py-2 rounded-md hover:bg-muted/50"
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors px-3 py-3 rounded-lg hover:bg-muted/80 active:bg-muted border border-transparent hover:border-border/30"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Upload
+              📤 Upload
             </Link>
             <Link 
               href="/admin" 
-              className="text-sm font-medium text-foreground hover:text-primary transition-colors px-2 py-2 rounded-md hover:bg-muted/50"
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors px-3 py-3 rounded-lg hover:bg-muted/80 active:bg-muted border border-transparent hover:border-border/30"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Admin
+              ⚙️ Admin
             </Link>
           </nav>
+          <div className="mt-4 pt-4 border-t border-border/30">
+            <p className="text-xs text-muted-foreground text-center italic">
+              "One place. All PYQs. No distractions."
+            </p>
+          </div>
         </div>
       </div>
     </header>

@@ -2,6 +2,8 @@ import { Router } from 'express';
 import upload from '../middlewares/upload.js';
 import Paper from '../models/Paper.js';
 import fs from 'fs/promises';
+import path from 'path';
+import fsSync from 'fs';
 import cloudinaryPkg from 'cloudinary';
 
 const cloudinary = cloudinaryPkg.v2;
@@ -11,8 +13,8 @@ const hasCloudinary = !!(
   process.env.CLOUDINARY_API_SECRET
 );
 
-// In development, auto-approve new uploads so they show up immediately in Results
-const autoApproveUploads = process.env.AUTO_APPROVE_UPLOADS === 'true' || process.env.NODE_ENV !== 'production';
+// Require admin approval for all uploads by default
+const autoApproveUploads = process.env.AUTO_APPROVE_UPLOADS === 'true';
 
 if (hasCloudinary) {
   cloudinary.config({
@@ -71,8 +73,6 @@ router.post('/upload', upload.single('file'), async (req, res) => {
   }
 });
 
-export default router;
-
 // List papers with filters
 router.get('/', async (req, res) => {
   try {
@@ -113,3 +113,103 @@ router.get('/:id', async (req, res) => {
     res.status(400).json({ success: false, error: 'Invalid id' });
   }
 });
+
+// Serve PDF file by paper ID
+router.get('/file/:id', async (req, res) => {
+  try {
+    const paper = await Paper.findById(req.params.id);
+    if (!paper) return res.status(404).json({ success: false, error: 'Paper not found' });
+
+    // If it's a Cloudinary URL, redirect to it
+    if (paper.fileUrl.startsWith('http')) {
+      return res.redirect(paper.fileUrl);
+    }
+
+    // If it's a local file, serve it
+    const filePath = path.join(process.cwd(), 'uploads', path.basename(paper.fileUrl));
+    
+    // Check if file exists
+    if (!fsSync.existsSync(filePath)) {
+      return res.status(404).json({ success: false, error: 'File not found' });
+    }
+
+    // Set proper headers for PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${paper.subject}_${paper.year}.pdf"`);
+    
+    // Stream the file
+    const fileStream = fsSync.createReadStream(filePath);
+    fileStream.pipe(res);
+  } catch (err) {
+    console.error('File serve error:', err);
+    res.status(500).json({ success: false, error: 'Failed to serve file' });
+  }
+});
+
+// Submit rating for a paper
+router.post('/:id/rating', async (req, res) => {
+  try {
+    const { rating, userId = 'anonymous' } = req.body;
+    
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ success: false, error: 'Rating must be between 1 and 5' });
+    }
+
+    const paper = await Paper.findById(req.params.id);
+    if (!paper) return res.status(404).json({ success: false, error: 'Paper not found' });
+
+    // Check if user already rated this paper
+    const existingRatingIndex = paper.ratings.findIndex(r => r.userId === userId);
+    
+    if (existingRatingIndex !== -1) {
+      // Update existing rating
+      paper.ratings[existingRatingIndex].rating = rating;
+      paper.ratings[existingRatingIndex].timestamp = new Date();
+    } else {
+      // Add new rating
+      paper.ratings.push({ rating, userId, timestamp: new Date() });
+    }
+
+    // Recalculate average rating
+    const totalRatings = paper.ratings.length;
+    const sumRatings = paper.ratings.reduce((sum, r) => sum + r.rating, 0);
+    paper.averageRating = totalRatings > 0 ? sumRatings / totalRatings : 0;
+    paper.totalRatings = totalRatings;
+
+    await paper.save();
+
+    res.json({ 
+      success: true, 
+      averageRating: paper.averageRating, 
+      totalRatings: paper.totalRatings,
+      userRating: rating
+    });
+  } catch (err) {
+    console.error('Rating error:', err);
+    res.status(500).json({ success: false, error: 'Failed to submit rating' });
+  }
+});
+
+// Get rating information for a paper
+router.get('/:id/rating', async (req, res) => {
+  try {
+    const { userId = 'anonymous' } = req.query;
+    const paper = await Paper.findById(req.params.id);
+    
+    if (!paper) return res.status(404).json({ success: false, error: 'Paper not found' });
+
+    const userRating = paper.ratings.find(r => r.userId === userId);
+
+    res.json({ 
+      success: true, 
+      averageRating: paper.averageRating || 0, 
+      totalRatings: paper.totalRatings || 0,
+      userRating: userRating ? userRating.rating : null
+    });
+  } catch (err) {
+    console.error('Get rating error:', err);
+    res.status(500).json({ success: false, error: 'Failed to get rating' });
+  }
+});
+
+export default router;

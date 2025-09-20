@@ -48,6 +48,36 @@
   --ring: 224.3 76.3% 94.1%;
 }
 
+/* Custom animations for mobile interactions */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+/* Touch-friendly star rating */
+@media (max-width: 640px) {
+  .star-rating-mobile {
+    min-height: 44px; /* Apple's recommended minimum touch target */
+  }
+}
+
+/* Smooth transitions for responsive design */
+@media (prefers-reduced-motion: no-preference) {
+  .rating-transition {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
 /* Minimal base mapping to ensure background/foreground are applied */
 html { color-scheme: light; }
 .dark html { color-scheme: dark; }
@@ -98,15 +128,50 @@ header {
 /* Mobile menu animation */
 .mobile-menu-slide {
   transform-origin: top;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 0;
+  overflow: hidden;
 }
 
 .mobile-menu-slide.open {
   transform: scaleY(1);
   opacity: 1;
+  max-height: 400px;
 }
 
 .mobile-menu-slide.closed {
-  transform: scaleY(0);
+  transform: scaleY(0.95);
   opacity: 0;
+  max-height: 0;
+}
+
+/* Mobile menu backdrop for better visibility */
+@media (max-width: 768px) {
+  .mobile-menu-slide {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dark .mobile-menu-slide {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Ensure proper stacking and background */
+.mobile-menu-slide::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: hsl(var(--background));
+  z-index: -1;
+}
+
+/* Better mobile menu item hover states */
+@media (max-width: 768px) {
+  .mobile-menu-slide a:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
 }

@@ -12,7 +12,7 @@ const Home = () => {
   const router = useRouter();
   const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
   
-  const [popularPapers, setPopularPapers] = useState([]);
+  const [recentPapers, setRecentPapers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -22,10 +22,10 @@ const Home = () => {
       try {
         setLoading(true);
         setError('');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000'}/api/papers?status=ready&sort=downloads&limit=6`, { signal: controller.signal });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000'}/api/papers?status=ready&sort=newest&limit=6`, { signal: controller.signal });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        setPopularPapers(data.data || []);
+        setRecentPapers(data.data || []);
       } catch (e) {
         if (e.name !== 'AbortError') setError(e.message);
       } finally {
@@ -41,6 +41,7 @@ const Home = () => {
     router.push({
       pathname: '/paper-viewer',
       query: {
+        id: paper._id,
         title: paper.subject || paper.title || '',
         department: paper.department || '',
         year: paper.year || '',
@@ -135,12 +136,12 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Popular Papers Section */}
+      {/* Recent Papers Section */}
       <section className="py-16 px-4 bg-muted/50">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Most Downloaded Papers</h2>
-            <p className="text-muted-foreground">Trending question papers from our collection</p>
+            <h2 className="text-3xl font-bold mb-4">Recent Papers</h2>
+            <p className="text-muted-foreground">Latest question papers added to our collection</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -160,7 +161,7 @@ const Home = () => {
                 </CardHeader>
               </Card>
             )}
-            {!loading && !error && popularPapers.length === 0 && (
+            {!loading && !error && recentPapers.length === 0 && (
               <Card className="col-span-1 md:col-span-2 lg:col-span-3">
                 <CardHeader>
                   <CardTitle>No papers yet</CardTitle>
@@ -170,7 +171,7 @@ const Home = () => {
                 </CardHeader>
               </Card>
             )}
-            {popularPapers.map((paper, index) => (
+            {recentPapers.map((paper, index) => (
               <Card key={index} className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start mb-2">
@@ -212,32 +213,6 @@ const Home = () => {
                 </CardContent>
               </Card>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto max-w-4xl">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <Card className="border-0 shadow-none">
-              <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-primary mb-2">500+</div>
-                <div className="text-muted-foreground">Question Papers</div>
-              </CardContent>
-            </Card>
-            <Card className="border-0 shadow-none">
-              <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-primary mb-2">50k+</div>
-                <div className="text-muted-foreground">Downloads</div>
-              </CardContent>
-            </Card>
-            <Card className="border-0 shadow-none">
-              <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-primary mb-2">24/7</div>
-                <div className="text-muted-foreground">Available</div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>

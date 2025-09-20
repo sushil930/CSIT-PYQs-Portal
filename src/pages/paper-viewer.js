@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
+import StarRating from '@/components/StarRating';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,6 +73,14 @@ const PaperViewer = () => {
   const [pdfPosition, setPdfPosition] = useState({ x: 0, y: 0 });
   const [lastPanPoint, setLastPanPoint] = useState({ x: 0, y: 0 });
   
+  // Rating state
+  const [ratingData, setRatingData] = useState({
+    averageRating: 0,
+    totalRatings: 0,
+    userRating: null
+  });
+  const [isLoadingRating, setIsLoadingRating] = useState(true);
+  
   const pdfContainerRef = useRef(null);
   const pdfRef = useRef(null);
   
@@ -79,6 +88,14 @@ const PaperViewer = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Fetch rating data when paper ID is available
+  useEffect(() => {
+    const paperId = router.query.id;
+    if (paperId) {
+      fetchRating(paperId);
+    }
+  }, [router.query.id]);
   
   // Build paper metadata from query params only
   const paperMetadata = {
@@ -235,6 +252,74 @@ const PaperViewer = () => {
     setScale(1.0);
   };
 
+  // Rating functions
+  const fetchRating = async (paperId) => {
+    try {
+      setIsLoadingRating(true);
+      const userId = localStorage.getItem('userId') || 'anonymous';
+      const response = await fetch(`/api/papers/${paperId}/rating?userId=${userId}`);
+      
+      if (!response.ok) {
+        console.error('Failed to fetch rating:', response.status);
+        return;
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setRatingData({
+          averageRating: data.averageRating,
+          totalRatings: data.totalRatings,
+          userRating: data.userRating
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch rating:', error);
+    } finally {
+      setIsLoadingRating(false);
+    }
+  };
+
+  const submitRating = async (rating) => {
+    try {
+      const paperId = router.query.id;
+      if (!paperId) {
+        throw new Error('Paper ID not found. Please refresh the page and try again.');
+      }
+
+      const userId = localStorage.getItem('userId') || 'anonymous';
+      const response = await fetch(`/api/papers/${paperId}/rating`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ rating, userId }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setRatingData({
+          averageRating: data.averageRating,
+          totalRatings: data.totalRatings,
+          userRating: data.userRating
+        });
+      } else {
+        throw new Error(data.error || 'Failed to submit rating');
+      }
+    } catch (error) {
+      console.error('Failed to submit rating:', error);
+      // Show user-friendly error message
+      alert(`Failed to submit rating: ${error.message}`);
+      throw error;
+    }
+  };
+
   const handlePrevPage = () => {
     setPageNumber(prev => Math.max(prev - 1, 1));
   };
@@ -360,18 +445,18 @@ Would you like me to explain any specific part in more detail?`;
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6">
-        <div className={`grid grid-cols-1 ${showAIPanel ? 'lg:grid-cols-4' : 'lg:grid-cols-4'} gap-6`}>
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
+        <div className={`grid grid-cols-1 ${showAIPanel ? 'xl:grid-cols-4' : 'xl:grid-cols-4'} gap-4 sm:gap-6`}>
           
           {/* PDF Viewer */}
-          <div className={`${showAIPanel ? 'lg:col-span-2' : 'lg:col-span-3'} ${showAIPanel ? 'order-2 lg:order-1' : ''}`}>
+          <div className={`${showAIPanel ? 'xl:col-span-2' : 'xl:col-span-3'} ${showAIPanel ? 'order-2 xl:order-1' : ''}`}>
             <Card className="overflow-hidden">
               <CardHeader className="pb-3">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-                  <CardTitle className="text-lg">Question Paper Preview</CardTitle>
+                  <CardTitle className="text-base sm:text-lg">Question Paper Preview</CardTitle>
                   <div className="flex items-center justify-between sm:justify-end gap-2">
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" onClick={handleZoomOut}>
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <Button variant="outline" size="sm" onClick={handleZoomOut} className="p-2">
                         <MagnifyingGlassMinusIcon className="h-4 w-4" />
                       </Button>
                       <span className="text-sm px-2 min-w-[60px] text-center">{Math.round(scale * 100)}%</span>
@@ -575,64 +660,88 @@ Would you like me to explain any specific part in more detail?`;
           )}
 
           {/* Sidebar */}
-          <div className={`lg:col-span-1 ${showAIPanel ? 'order-3' : 'order-2'}`}>
-            <div className="space-y-6">
+          <div className={`xl:col-span-1 ${showAIPanel ? 'order-3' : 'order-2'}`}>
+            <div className="space-y-4 sm:space-y-6">
               
               {/* Paper Details */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Paper Details</CardTitle>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base sm:text-lg">Paper Details</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Department:</span>
-                    <span className="text-sm font-medium">{paperMetadata.department}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Exam Type:</span>
-                    <span className="text-sm font-medium">{paperMetadata.examType}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Downloads:</span>
-                    <span className="text-sm font-medium">{paperMetadata.downloads}</span>
-                  </div>
-                  {paperMetadata?.rating != null && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Rating:</span>
-                      <div className="flex items-center gap-1">
-                        <span className="text-sm">★★★★☆</span>
-                        <span className="text-sm text-muted-foreground">({paperMetadata.rating})</span>
-                      </div>
+                <CardContent className="space-y-2 sm:space-y-3">
+                  <div className="grid grid-cols-2 gap-2 sm:block sm:space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:justify-between">
+                      <span className="text-xs sm:text-sm text-muted-foreground">Department:</span>
+                      <span className="text-xs sm:text-sm font-medium truncate">{paperMetadata.department}</span>
                     </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Added:</span>
-                    <span className="text-sm font-medium">{paperMetadata.uploadDate}</span>
+                    <div className="flex flex-col sm:flex-row sm:justify-between">
+                      <span className="text-xs sm:text-sm text-muted-foreground">Exam Type:</span>
+                      <span className="text-xs sm:text-sm font-medium truncate">{paperMetadata.examType}</span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:justify-between">
+                      <span className="text-xs sm:text-sm text-muted-foreground">Downloads:</span>
+                      <span className="text-xs sm:text-sm font-medium">{paperMetadata.downloads}</span>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:justify-between">
+                      <span className="text-xs sm:text-sm text-muted-foreground">Added:</span>
+                      <span className="text-xs sm:text-sm font-medium truncate">{paperMetadata.uploadDate}</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Quick Actions */}
+              {/* Rating Section */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Quick Actions</CardTitle>
+                <CardHeader className="pb-3 sm:pb-6">
+                  <CardTitle className="text-lg sm:text-xl">Rate this Paper</CardTitle>
+                  <CardDescription className="text-sm sm:text-base">
+                    Help others by rating the quality and usefulness of this paper
+                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  <Button variant="outline" className="w-full justify-start" size="sm">
-                    <TagIcon className="h-4 w-4 mr-2" />
-                    Add to Favorites
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start" size="sm">
-                    <ChatBubbleLeftIcon className="h-4 w-4 mr-2" />
-                    Report Issue
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start" size="sm">
-                    <MagnifyingGlassIcon className="h-4 w-4 mr-2" />
-                    Find Similar
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start lg:hidden" size="sm" onClick={resetPdfPosition}>
-                    Reset PDF View
-                  </Button>
+                <CardContent className="space-y-4 sm:space-y-6">
+                  {isLoadingRating ? (
+                    <div className="flex items-center justify-center py-8 sm:py-12">
+                      <div className="text-center space-y-3">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                        <div className="text-sm sm:text-base text-muted-foreground">Loading rating...</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 sm:space-y-5">
+                      <div className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20 rounded-lg p-4 sm:p-5 border border-yellow-200/50 dark:border-yellow-800/30">
+                        <StarRating
+                          rating={ratingData.averageRating}
+                          totalRatings={ratingData.totalRatings}
+                          onRatingChange={submitRating}
+                          readonly={false}
+                          size="medium"
+                          showCount={true}
+                        />
+                      </div>
+                      
+                      {ratingData.userRating && (
+                        <div className="text-sm sm:text-base text-muted-foreground bg-primary/5 rounded-lg p-3 sm:p-4 border-l-4 border-primary/30">
+                          <div className="flex items-center gap-2">
+                            <div className="h-2 w-2 bg-primary rounded-full"></div>
+                            <span className="font-medium">Your rating:</span> 
+                            <span className="text-primary font-semibold">{ratingData.userRating} star{ratingData.userRating !== 1 ? 's' : ''}</span>
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="pt-3 sm:pt-4 border-t border-muted/50">
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-center sm:justify-start xl:hidden text-sm sm:text-base py-2 sm:py-3 h-auto" 
+                          size="sm" 
+                          onClick={resetPdfPosition}
+                        >
+                          <XMarkIcon className="h-4 w-4 mr-2" />
+                          Reset PDF View
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
-    "test": "node -e \"console.log('No tests yet')\""
+    "test": "node -e \"console.log('No tests yet')\"",
+    "reset:admin": "node src/resetAdminPassword.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

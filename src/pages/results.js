@@ -59,7 +59,7 @@ const results = () => {
     router.push({
       pathname: '/paper-viewer',
       query: {
-        id: index,
+        id: paper._id,
         title: paper.subject || paper.title,
         department: paper.department || '',
         year: paper.year || '',

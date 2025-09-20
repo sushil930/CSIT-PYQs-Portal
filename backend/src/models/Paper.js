@@ -13,6 +13,13 @@ const PaperSchema = new mongoose.Schema(
     extractedText: { type: String, default: '' },
     views: { type: Number, default: 0 },
     downloads: { type: Number, default: 0 },
+    ratings: [{
+      rating: { type: Number, min: 1, max: 5, required: true },
+      userId: { type: String, default: 'anonymous' },
+      timestamp: { type: Date, default: Date.now }
+    }],
+    averageRating: { type: Number, default: 0, min: 0, max: 5 },
+    totalRatings: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

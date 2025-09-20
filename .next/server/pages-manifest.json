@@ -3,6 +3,7 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/results": "pages/results.js",
-  "/paper-viewer": "pages/paper-viewer.js",
-  "/": "pages/index.js"
+  "/admin": "pages/admin.js",
+  "/": "pages/index.js",
+  "/upload": "pages/upload.js"
 }

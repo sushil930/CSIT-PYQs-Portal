@@ -236,6 +236,7 @@ const AdminPanel = () => {
 
   const handlePreview = (paper) => {
     const query = {
+      id: paper._id,
       title: paper.subject,
       department: paper.department,
       year: paper.year,

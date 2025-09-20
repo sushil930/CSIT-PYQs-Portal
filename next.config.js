@@ -14,6 +14,15 @@ const nextConfig = {
     }
     return config;
   },
+  // Proxy API calls to backend
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:4000/api/:path*',
+      },
+    ];
+  },
   // Configure headers for PDF.js worker
   async headers() {
     return [
