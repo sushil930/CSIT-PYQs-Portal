@@ -19,7 +19,7 @@ const results = () => {
   const [filters, setFilters] = useState({
     department: '',
     semester: '',
-    year: '',
+    course: '',
     q: '',
     tags: '',
     sort: 'newest',
@@ -35,7 +35,7 @@ const results = () => {
   params.set('status', resultsStatus);
         if (filters.department) params.set('department', filters.department);
         if (filters.semester) params.set('semester', filters.semester);
-        if (filters.year) params.set('year', filters.year);
+        if (filters.course) params.set('course', filters.course);
         if (filters.q) params.set('q', filters.q);
         if (filters.tags) params.set('tags', filters.tags);
         if (filters.sort) params.set('sort', filters.sort);
@@ -52,7 +52,7 @@ const results = () => {
     }
     load();
     return () => controller.abort();
-  }, [filters.department, filters.semester, filters.year, filters.q, filters.tags, filters.sort]);
+  }, [filters.department, filters.semester, filters.course, filters.q, filters.tags, filters.sort]);
 
   const handlePreview = (paper, index) => {
     // Navigate to paper preview page with paper data
@@ -133,16 +133,19 @@ const results = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Year</label>
-                  <Select value={filters.year} onValueChange={(v) => setFilters({ ...filters, year: v })}>
+                  <label className="text-sm font-medium">Course</label>
+                  <Select value={filters.course} onValueChange={(v) => setFilters({ ...filters, course: v })}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select year" />
+                      <SelectValue placeholder="Select course" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="2023">2023</SelectItem>
-                      <SelectItem value="2022">2022</SelectItem>
-                      <SelectItem value="2021">2021</SelectItem>
-                      <SelectItem value="2020">2020</SelectItem>
+                      <SelectItem value="btech">B.Tech</SelectItem>
+                      <SelectItem value="mtech">M.Tech</SelectItem>
+                      <SelectItem value="bca">BCA</SelectItem>
+                      <SelectItem value="mca">MCA</SelectItem>
+                      <SelectItem value="bsc">B.Sc</SelectItem>
+                      <SelectItem value="msc">M.Sc</SelectItem>
+                      <SelectItem value="diploma">Diploma</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

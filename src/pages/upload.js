@@ -18,7 +18,7 @@ const Upload = () => {
   const [formData, setFormData] = useState({
     department: '',
     subject: '',
-    year: '',
+    course: '',
     examType: '',
     tags: '',
     file: null
@@ -39,8 +39,8 @@ const Upload = () => {
     const fd = new FormData();
     fd.append('file', formData.file);
     fd.append('subject', formData.subject);
+    fd.append('course', formData.course);
     fd.append('department', formData.department);
-    fd.append('year', formData.year);
     fd.append('semester', formData.semester || '');
     fd.append('tags', formData.tags);
     fd.append('uploader', 'web');
@@ -59,7 +59,7 @@ const Upload = () => {
         const res = JSON.parse(xhr.responseText);
         if (xhr.status >= 200 && xhr.status < 300 && res.success) {
           alert('Upload successful');
-          setFormData({ department: '', subject: '', year: '', examType: '', tags: '', file: null });
+          setFormData({ department: '', subject: '', course: '', examType: '', tags: '', file: null });
           setUploadProgress(0);
         } else {
           alert(res.error || 'Upload failed');
@@ -143,24 +143,26 @@ const Upload = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-sm font-medium">Year *</label>
-                        <Select value={formData.year} onValueChange={(value) => setFormData({...formData, year: value})}>
+                        <label className="text-sm font-medium">Course *</label>
+                        <Select value={formData.course} onValueChange={(value) => setFormData({...formData, course: value})}>
                           <SelectTrigger className="h-11">
-                            <SelectValue placeholder="Select year" />
+                            <SelectValue placeholder="Select course" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="2024">2024</SelectItem>
-                            <SelectItem value="2023">2023</SelectItem>
-                            <SelectItem value="2022">2022</SelectItem>
-                            <SelectItem value="2021">2021</SelectItem>
-                            <SelectItem value="2020">2020</SelectItem>
+                            <SelectItem value="btech">B.Tech</SelectItem>
+                            <SelectItem value="mtech">M.Tech</SelectItem>
+                            <SelectItem value="bca">BCA</SelectItem>
+                            <SelectItem value="mca">MCA</SelectItem>
+                            <SelectItem value="bsc">B.Sc</SelectItem>
+                            <SelectItem value="msc">M.Sc</SelectItem>
+                            <SelectItem value="diploma">Diploma</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Course/Subject *</label>
+                      <label className="text-sm font-medium">Subject *</label>
                       <Input 
                         type="text" 
                         placeholder="e.g. Data Structures and Algorithms"
@@ -249,7 +251,7 @@ const Upload = () => {
                       <Button 
                         type="submit" 
                         className="h-12 text-base font-semibold"
-                        disabled={isUploading || !formData.file || !formData.subject || !formData.department || !formData.year}
+                        disabled={isUploading || !formData.file || !formData.subject || !formData.course || !formData.department}
                       >
                         {isUploading ? 'Uploading...' : 'Submit for Review'}
                       </Button>
