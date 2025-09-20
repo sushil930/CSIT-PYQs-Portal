@@ -78,7 +78,7 @@ const Home = () => {
           </p>
           
           {/* Search Bar */}
-          <div className="relative max-w-2xl mx-auto mb-8">
+          <div className="relative max-w-2xl mx-auto mb-16">
             <Input
               type="text"
               placeholder="Search by subject, year, or tags..."
@@ -90,48 +90,6 @@ const Home = () => {
             >
               <MagnifyingGlassIcon className="h-5 w-5" />
             </Button>
-          </div>
-          
-          {/* Quick Filters */}
-          <div className="flex flex-wrap justify-center gap-4 mb-16">
-            <Select>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="csit">CSIT</SelectItem>
-                <SelectItem value="ece">ECE</SelectItem>
-                <SelectItem value="me">ME</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Select>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Semester" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">1st Semester</SelectItem>
-                <SelectItem value="2">2nd Semester</SelectItem>
-                <SelectItem value="3">3rd Semester</SelectItem>
-                <SelectItem value="4">4th Semester</SelectItem>
-                <SelectItem value="5">5th Semester</SelectItem>
-                <SelectItem value="6">6th Semester</SelectItem>
-                <SelectItem value="7">7th Semester</SelectItem>
-                <SelectItem value="8">8th Semester</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Select>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Year" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="2023">2023</SelectItem>
-                <SelectItem value="2022">2022</SelectItem>
-                <SelectItem value="2021">2021</SelectItem>
-                <SelectItem value="2020">2020</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </div>
       </section>

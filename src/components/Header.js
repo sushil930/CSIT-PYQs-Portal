@@ -2,15 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import ThemeToggle from './ThemeToggle';
 import { Button } from "@/components/ui/button";
-import { 
-  Bars3Icon, 
-  XMarkIcon, 
-  HomeIcon,
-  DocumentTextIcon,
-  CloudArrowUpIcon,
-  Cog6ToothIcon,
-  AcademicCapIcon
-} from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/solid';
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -82,135 +74,119 @@ const Header = () => {
     };
   }, [mobileMenuOpen]);
 
-  const navItems = [
-    { href: '/', label: 'Home', icon: HomeIcon },
-    { href: '/results', label: 'Browse Papers', icon: DocumentTextIcon },
-    { href: '/upload', label: 'Upload', icon: CloudArrowUpIcon },
-    { href: '/admin', label: 'Admin', icon: Cog6ToothIcon },
-  ];
-
   return (
     <header 
-      className={`sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 transition-all duration-500 ease-out ${
-        scrolled 
-          ? 'shadow-lg bg-background/95 backdrop-blur-xl border-border/60' 
-          : 'shadow-sm bg-background/80 backdrop-blur-md'
+      className={`relative border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300 ${
+        scrolled ? 'shadow-md' : 'shadow-sm'
       } ${
         visible ? 'translate-y-0' : '-translate-y-full'
       }`}
+      style={{ height: 'var(--header-height)', zIndex: 40 }}
     >
-      <div className="container mx-auto px-4 lg:px-6">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo Section */}
-          <div className="flex items-center space-x-2">
+      <div className="container mx-auto px-4 h-full flex justify-between items-center">
+        <div className="flex items-center space-x-8">
+          <Link 
+            href="/" 
+            className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent hover:from-primary/90 hover:to-primary/70 transition-all duration-300"
+          >
+            CSIT PYQs Portal
+          </Link>
+          <nav className="hidden md:flex items-center space-x-6">
             <Link 
               href="/" 
-              className="flex items-center space-x-3 group"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 nav-link-hover"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg transition-transform duration-300 group-hover:scale-105 group-hover:shadow-xl">
-                <AcademicCapIcon className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                  CSIT PYQs
-                </span>
-                <span className="text-xs text-muted-foreground font-medium -mt-1 hidden sm:block">
-                  Previous Year Questions
-                </span>
-              </div>
+              Home
             </Link>
-          </div>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => {
-              const IconComponent = item.icon;
-              return (
-                <Link 
-                  key={item.href}
-                  href={item.href} 
-                  className="group flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200 relative overflow-hidden"
-                >
-                  <IconComponent className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
-                  <span>{item.label}</span>
-                  <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-primary to-primary/80 scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left" />
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Right Section */}
-          <div className="flex items-center space-x-4">
-            <div className="hidden lg:block">
-              <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-muted/40 border border-border/40">
-                <div className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-xs font-medium text-muted-foreground">
-                  Live Portal
-                </span>
-              </div>
-            </div>
-            <ThemeToggle />
-            <Button 
-              ref={mobileButtonRef}
-              variant="ghost" 
-              size="sm" 
-              className="md:hidden h-10 w-10 rounded-lg border border-border/40 hover:bg-muted/60 hover:border-border/60 transition-all duration-200" 
-              onClick={toggleMobileMenu}
-              aria-label="Toggle mobile menu"
+            <Link 
+              href="/results" 
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 nav-link-hover"
             >
-              {mobileMenuOpen ? (
-                <XMarkIcon className="h-5 w-5" />
-              ) : (
-                <Bars3Icon className="h-5 w-5" />
-              )}
-            </Button>
-          </div>
+              Browse Papers
+            </Link>
+            <Link 
+              href="/upload" 
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 nav-link-hover"
+            >
+              Upload
+            </Link>
+            <Link 
+              href="/admin" 
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 nav-link-hover"
+            >
+              Admin
+            </Link>
+          </nav>
+        </div>
+        <div className="flex items-center space-x-4">
+          <p className="text-sm text-muted-foreground italic hidden xl:block">
+            "One place. All PYQs. No distractions."
+          </p>
+          <ThemeToggle />
+          <Button 
+            ref={mobileButtonRef}
+            variant="ghost" 
+            size="sm" 
+            className="md:hidden h-9 w-9 p-0" 
+            onClick={toggleMobileMenu}
+            aria-label="Toggle mobile menu"
+          >
+            {mobileMenuOpen ? (
+              <XMarkIcon className="h-6 w-6" />
+            ) : (
+              <Bars3Icon className="h-6 w-6" />
+            )}
+          </Button>
         </div>
       </div>
 
       {/* Mobile Menu */}
       <div 
         ref={mobileMenuRef}
-        className={`md:hidden absolute left-0 right-0 top-full bg-background/95 backdrop-blur-xl border-t border-border/40 shadow-2xl transition-all duration-300 ease-out ${
-          mobileMenuOpen 
-            ? 'opacity-100 translate-y-0 visible' 
-            : 'opacity-0 -translate-y-2 invisible'
+        className={`md:hidden absolute left-0 right-0 top-full bg-background/98 backdrop-blur-md border-t border-border/40 shadow-lg mobile-menu-slide ${
+          mobileMenuOpen ? 'open' : 'closed'
         }`}
         style={{ 
-          zIndex: 40,
+          zIndex: 50,
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)'
         }}
       >
-        <div className="p-6 bg-gradient-to-b from-background/95 to-background/98">
-          <nav className="flex flex-col space-y-2">
-            {navItems.map((item, index) => {
-              const IconComponent = item.icon;
-              return (
-                <Link 
-                  key={item.href}
-                  href={item.href} 
-                  className="group flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-foreground hover:text-primary transition-all duration-200 hover:bg-muted/60 active:bg-muted border border-transparent hover:border-border/30 hover:shadow-sm"
-                  onClick={() => setMobileMenuOpen(false)}
-                  style={{
-                    animationDelay: mobileMenuOpen ? `${index * 50}ms` : '0ms'
-                  }}
-                >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted/60 group-hover:bg-primary/10 transition-colors duration-200">
-                    <IconComponent className="h-4 w-4 group-hover:text-primary transition-colors duration-200" />
-                  </div>
-                  <span className="flex-1">{item.label}</span>
-                  <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                </Link>
-              );
-            })}
+        <div className="p-4 bg-background/95">
+          <nav className="flex flex-col space-y-1">
+            <Link 
+              href="/" 
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors px-3 py-3 rounded-lg hover:bg-muted/80 active:bg-muted border border-transparent hover:border-border/30"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              🏠 Home
+            </Link>
+            <Link 
+              href="/results" 
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors px-3 py-3 rounded-lg hover:bg-muted/80 active:bg-muted border border-transparent hover:border-border/30"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              📄 Browse Papers
+            </Link>
+            <Link 
+              href="/upload" 
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors px-3 py-3 rounded-lg hover:bg-muted/80 active:bg-muted border border-transparent hover:border-border/30"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              📤 Upload
+            </Link>
+            <Link 
+              href="/admin" 
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors px-3 py-3 rounded-lg hover:bg-muted/80 active:bg-muted border border-transparent hover:border-border/30"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              ⚙️ Admin
+            </Link>
           </nav>
-          
-          <div className="mt-6 pt-4 border-t border-border/30">
-            <div className="flex items-center justify-center space-x-2 px-4 py-2 rounded-lg bg-muted/40">
-              <div className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-xs font-medium text-muted-foreground">
-                Live Portal - All systems operational
-              </span>
-            </div>
+          <div className="mt-4 pt-4 border-t border-border/30">
+            <p className="text-xs text-muted-foreground text-center italic">
+              "One place. All PYQs. No distractions."
+            </p>
           </div>
         </div>
       </div>
